@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Focus Battle: Focus or Distraction?</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      color: #222;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 700px;
+      text-align: center;
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    p {
+      line-height: 1.5;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      margin: 24px 0;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .word-card {
+      margin: 30px auto;
+      width: 100%;
+      max-width: 420px;
+      height: 220px;
+      border: 3px solid #222;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 52px;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+      background: #ffffff;
+    }
+
+    .word-card:active {
+      transform: scale(0.98);
+    }
+
+    button {
+      border: none;
+      background: #222;
+      color: white;
+      padding: 14px 28px;
+      font-size: 18px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #444;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .final-score {
+      font-size: 26px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="startScreen">
+      <h1>Focus Battle: Focus or Distraction?</h1>
+      <p>
+        Test your selective attention. Click only the focus-related words and ignore distractions.
+      </p>
+      <button id="startButton">Start Game</button>
+    </div>
+
+    <div id="gameScreen" class="hidden">
+      <h1>Focus Battle</h1>
+
+      <div class="stats">
+        <div>Score: <span id="score">0</span></div>
+        <div>Time: <span id="time">30</span>s</div>
+      </div>
+
+      <div id="wordCard" class="word-card">READY</div>
+
+      <p>Click only when a Focus word appears.</p>
+    </div>
+
+    <div id="endScreen" class="hidden">
+      <h1>Focus Battle Complete!</h1>
+      <div class="final-score">
+        Final Score: <span id="finalScore">0</span>
+      </div>
+      <p>
+        Selective attention helps us focus on relevant information while ignoring distractions.
+      </p>
+      <button id="playAgainButton">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    const focusWords = ["FOCUS", "STUDY", "PLAN", "READ"];
+    const distractionWords = ["PHONE", "MESSAGE", "TIKTOK", "NOISE", "GAME"];
+    const allWords = [...focusWords, ...distractionWords];
+
+    const startScreen = document.getElementById("startScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const endScreen = document.getElementById("endScreen");
+
+    const startButton = document.getElementById("startButton");
+    const playAgainButton = document.getElementById("playAgainButton");
+
+    const wordCard = document.getElementById("wordCard");
+    const scoreDisplay = document.getElementById("score");
+    const timeDisplay = document.getElementById("time");
+    const finalScoreDisplay = document.getElementById("finalScore");
+
+    let score = 0;
+    let timeLeft = 30;
+    let currentWord = "";
+    let gameActive = false;
+    let wordTimer = null;
+    let countdownTimer = null;
+    let clickedThisWord = false;
+
+    function getRandomWord() {
+      const index = Math.floor(Math.random() * allWords.length);
+      return allWords[index];
+    }
+
+    function showNewWord() {
+      currentWord = getRandomWord();
+      clickedThisWord = false;
+      wordCard.textContent = currentWord;
+    }
+
+    function startGame() {
+      score = 0;
+      timeLeft = 30;
+      gameActive = true;
+
+      scoreDisplay.textContent = score;
+      timeDisplay.textContent = timeLeft;
+
+      startScreen.classList.add("hidden");
+      endScreen.classList.add("hidden");
+      gameScreen.classList.remove("hidden");
+
+      showNewWord();
+
+      wordTimer = setInterval(showNewWord, 1000);
+
+      countdownTimer = setInterval(() => {
+        timeLeft--;
+        timeDisplay.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function handleCardClick() {
+      if (!gameActive || clickedThisWord) return;
+
+      clickedThisWord = true;
+
+      if (focusWords.includes(currentWord)) {
+        score++;
+      } else {
+        score--;
+      }
+
+      scoreDisplay.textContent = score;
+    }
+
+    function endGame() {
+      gameActive = false;
+
+      clearInterval(wordTimer);
+      clearInterval(countdownTimer);
+
+      gameScreen.classList.add("hidden");
+      endScreen.classList.remove("hidden");
+
+      finalScoreDisplay.textContent = score;
+    }
+
+    startButton.addEventListener("click", startGame);
+    playAgainButton.addEventListener("click", startGame);
+    wordCard.addEventListener("click", handleCardClick);
+  </script>
+</body>
+</html>
